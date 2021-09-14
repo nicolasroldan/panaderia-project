@@ -1,0 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap");
+:root {
+  --primary-color: #f1eede;
+  --secondary-color: #008e84;
+}
+
+body {
+  background: #ede4b5;
+  margin: 0;
+  font-family: "DM Serif Text";
+  letter-spacing: 1px;
+}
+
+.container {
+  width: 1080px;
+  margin: 0 auto;
+}
+
+section {
+  padding: 5em 4em;
+}
+
+.carrito-section {
+  color: white;
+}
+
+.carrito-section .container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.carrito-section .container .left-col {
+  width: 70%;
+}
+
+.carrito-section .container .left-col .btn-volver, .carrito-section .container .left-col .btn-confirmar {
+  background: var(--secondary-color);
+  color: var(--primary-color);
+  text-decoration: none;
+  padding: 0.6em 1.3em;
+  font-size: 1.4em;
+  border-radius: 5em;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.carrito-section .container .left-col p {
+  color: var(--secondary-color);
+  text-align: justify;
+  font-size: 1.5em;
+  margin-top: 0;
+}
+
+.carrito-section .container .left-col .resumen-pedido {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.carrito-section .container .left-col .resumen-pedido ul {
+  list-style-type: none;
+}
+
+.carrito-section .container .img-container {
+  width: 30%;
+}
+
+.carrito-section .container .img-container .preparando-img {
+  width: 100%;
+  border-radius: 10px;
+}
+/*# sourceMappingURL=carrito.css.map */
