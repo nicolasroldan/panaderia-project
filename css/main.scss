@@ -200,7 +200,9 @@ section.about-section {
   color: white;
 
   ul {
-    display: flex;
+    display:grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100rem,20rem), 1fr));
 
     li {
       background: var(--secondary-color);

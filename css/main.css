@@ -207,9 +207,11 @@ section.about-section .container .campo-img {
 }
 
 .productos-section ul {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  display: -ms-grid;
+  display: grid;
+  gap: 1rem;
+  -ms-grid-columns: (minmax(20rem, 1fr))[auto-fill];
+      grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
 }
 
 .productos-section ul li {
