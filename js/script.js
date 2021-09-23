@@ -16,63 +16,59 @@ const PRECIO_PAN_TRENZA = 100;
 
 const listadoPanes = [];
 
-
-
 // Main
-login();
 
+login();
 
 // Funciones
 
-
 function login() {
-    let formLogin = document.getElementById("form-login");
     formLogin.onsubmit = (event) => { validarFormulario(event) };
 
     usuario = JSON.parse(localStorage.getItem('usuario'));
     carrito = JSON.parse(localStorage.getItem('carrito'));
 
     if (!usuario) {
-        document.getElementsByTagName('body')[0].style.backgroundColor = 'var(--primary-color)'
-        document.getElementById('login').style.display = 'block';
-        document.getElementById('nav').style.display = 'none';
-        document.getElementById('landing').style.display = 'none';
-        document.getElementById('about').style.display = 'none';
-        document.getElementById('productos').style.display = 'none';
-        document.getElementById('contacto').style.display = 'none';
-        document.getElementById('carrito').style.display = 'none';
+        body.style.backgroundColor = 'var(--primary-color)';
+        loginSection.style.display = 'block';
+        navSection.style.display = 'none';
+        landingSection.style.display = 'none';
+        aboutSection.style.display = 'none';
+        productosSection.style.display = 'none';
+        contactoSection.style.display = 'none';
+        carritoSection.style.display = 'none';
     } else {
-        document.getElementById('display-nombre-usuario').innerText = usuario.nombre;
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('nav').style.display = 'block';
-        document.getElementById('landing').style.display = 'block';
-        document.getElementById('about').style.display = 'block';
-        document.getElementById('productos').style.display = 'block';
-        document.getElementById('contacto').style.display = 'block';
-        document.getElementById('carrito').style.display = 'none';
+        nombreUsuario.innerText = usuario.nombre;
+        loginSection.style.display = 'none';
+        navSection.style.display = 'block';
+        landingSection.style.display = 'block';
+        aboutSection.style.display = 'block';
+        productosSection.style.display = 'block';
+        contactoSection.style.display = 'block';
+        carritoSection.style.display = 'none';
     }
 
     if (!carrito) carrito = [];
-    renderizarPanes();
 
+    renderizarPanes();
 }
 
 function validarFormulario(event) {
     event.preventDefault();
-    let form = event.target
+    let form = event.target;
     usuario = new Usuario(form.children[1].value, form.children[3].value);
     localStorage.setItem('usuario', JSON.stringify(usuario));
-    document.getElementsByTagName('body')[0].style.backgroundColor = '#f2f2f2'
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('nav').style.display = 'block';
-    document.getElementById('landing').style.display = 'block';
-    document.getElementById('about').style.display = 'block';
-    document.getElementById('productos').style.display = 'block';
-    document.getElementById('contacto').style.display = 'block';
-    document.getElementById('carrito').style.display = 'none';
+    body.style.backgroundColor = '#F2F2F2';
+    
+    loginSection.style.display = 'none';
+    navSection.style.display = 'block';
+    landingSection.style.display = 'block';
+    aboutSection.style.display = 'block';
+    productosSection.style.display = 'block';
+    contactoSection.style.display = 'block';
+    carritoSection.style.display = 'none';
 
-    document.getElementById('display-nombre-usuario').innerText = usuario.nombre;
-
+    nombreUsuario.innerText = usuario.nombre;
 }
 
 //Funcion que carga el listado de panes disponibles y los renderiza en el HTML
@@ -232,14 +228,14 @@ function removerPan(pan) {
             }
         })
     }
-    //
+    
     if (panDisponible(pan) && pan.cantidadPedido === 0) {
         document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
     } else if (panDisponible(pan)) {
         document.getElementById(`${pan.id}-add`).style.visibility = 'visible';
 
     }
-    /////////////
+   
     getCantidadTotalPanes();
     document.getElementById('carrito-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
     document.getElementById('carrito-link-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
@@ -261,12 +257,12 @@ function vaciarCarrito() {
 function armarPedido() {
     pedido = new Pedido(carrito);
     precioTotal = pedido.calcularCostoPedido();
-    document.getElementById('nav').style.display = 'none';
-    document.getElementById('landing').style.display = 'none';
-    document.getElementById('about').style.display = 'none';
-    document.getElementById('productos').style.display = 'none';
-    document.getElementById('contacto').style.display = 'none';
-    document.getElementById('carrito').style.display = 'block';
+    navSection.style.display = 'none';
+    landingSection.style.display = 'none';
+    aboutSection.style.display = 'none';
+    productosSection.style.display = 'none';
+    contactoSection.style.display = 'none';
+    carritoSection.style.display = 'block';
 
 
     ulInformePedidoFinal.innerHTML = '';
@@ -315,11 +311,11 @@ function generarMensajeCompra() {
 
 function goToHomePage() {
     document.getElementById('nav').style.display = 'block';
-    document.getElementById('landing').style.display = 'block';
-    document.getElementById('about').style.display = 'block';
-    document.getElementById('productos').style.display = 'block';
-    document.getElementById('contacto').style.display = 'block';
-    document.getElementById('carrito').style.display = 'none';
+    landingSection.style.display = 'block';
+    aboutSection.style.display = 'block';
+    productosSection.style.display = 'block';
+    contactoSection.style.display = 'block';
+    carritoSection.style.display = 'none';
 }
 
 function redireccionarAInicio() {
