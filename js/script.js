@@ -22,6 +22,10 @@ login();
 
 // Funciones
 
+// 1 - Si no existe un usuario, lo hago loggerase. Llamo a la funcion que valida el formulario (crea el usuario, lo guarda en localStorage)
+// 2 -  Traigo el usuario y el carrito del localStorage
+// 3 - Si existe el usuario muestro la pagina.
+// 4 - Llamo a la funcion que renderiza la lista de panes
 function login() {
     formLogin.onsubmit = (event) => { validarFormulario(event) };
 
@@ -53,13 +57,17 @@ function login() {
     renderizarPanes();
 }
 
+// 1 - En el submit del form del login genero el nuevo usuario y lo guardo en localStorage
+// 2 - Escondo la section de login y muestro la pagina
+// 3 - Asigno el nombre del usuario en el DOM
+
 function validarFormulario(event) {
     event.preventDefault();
     let form = event.target;
     usuario = new Usuario(form.children[1].value, form.children[3].value);
     localStorage.setItem('usuario', JSON.stringify(usuario));
+
     body.style.backgroundColor = '#F2F2F2';
-    
     loginSection.style.display = 'none';
     navSection.style.display = 'block';
     landingSection.style.display = 'block';
@@ -71,7 +79,6 @@ function validarFormulario(event) {
     nombreUsuario.innerText = usuario.nombre;
 }
 
-//Funcion que carga el listado de panes disponibles y los renderiza en el HTML
 function renderizarPanes() {
     document.getElementById('carrito-btn').onclick = () => { armarPedido() };
     document.getElementById('carrito-link-btn').onclick = () => { armarPedido() };
