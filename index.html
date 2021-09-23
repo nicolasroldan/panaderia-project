@@ -5,15 +5,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/26d4a64054.js" crossorigin="anonymous"></script>
+    <script src="js/dom.js" defer></script>
+    <script src="js/objetos.js" defer></script>
     <script src="js/script.js" defer></script>
+    <script src="https://kit.fontawesome.com/5fb9878282.js" crossorigin="anonymous"></script>
     <title>El Perro Panaderia</title>
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-
+    
+    <!-- Login Section -->
+    
+    <section id="login" class="landing">
+        <div class="container">
+            <div class="left-col">
+                <h2>Tienda de Panes artesanales</h2>
+                <form id="form-login" action="">
+                    <label for="nombre-usuario">Nombre</label>
+                    <input type="text" id="nombre-usuario" name="name" required>
+                    <label for="contraseña-usuario">Contraseña</label>
+                    <input type="password" id="contraseña-usuario" name="contraseña" required>
+                    <input type="submit" class="login-btn" value="Login">
+                </form>
+            </div>
+            <img class="landing-img" src="images/campo-trigo.jpg" alt="Illustration">
+        </div>
+    </section>
+    
     <!-- Navbar Section -->
 
-    <div class="navbar">
+    <div id="nav" class="navbar">
         <div class="container">
             <a class="logo" href="#">El Perro <span>Panaderia</span></a>
             <nav>
@@ -21,10 +42,11 @@
                     <li class="current"><a href="#">Home</a></li>
                     <li><a href="#about">¿Que es la masa madre?</a></li>
                     <li><a href="#productos">Productos</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
                 </ul>
                 <ul class="secondary-nav">
-                    <li><a href="#contacto">Contacto</a></li>
-                    <li class="carrito-link-btn"><a href="carrito.html">Carrito</a></li>
+                    <li><p id="display-nombre-usuario"></p></li>
+                    <li><a id="carrito-link-btn">Ir al Carrito</a></li>
                 </ul>
             </nav>
         </div>
@@ -32,7 +54,7 @@
 
     <!-- Landing Section -->
 
-    <section class="landing">
+    <section id="landing" class="landing">
         <div class="container">
             <div class="left-col">
                 <p class="subhead">Harinas organicas</p>
@@ -69,8 +91,10 @@
         <div class="container">
             <ul id="listaPanes">
             </ul>
-            <div class="carrito-btn">
-                <a href="carrito.html">Ir al carrito</a>
+            <div class="carrito-btn-container">
+                <a id="carrito-btn">Ir al Carrito</a>
+            </div>
+            <div class="carrito-btn-container">
             </div>
         </div>
     </section>
@@ -97,6 +121,29 @@
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13139.049420427786!2d-58.48856126566076!3d-34.584879237428105!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb66ca6ae7bf1%3A0xf28cf4a38e0a9db9!2sParque%20Chas%2C%20CABA!5e0!3m2!1ses!2sar!4v1629331242748!5m2!1ses!2sar"
                     width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+      <!-- Carrito/confirmado de pedido Section -->
+
+    <section id="carrito" class="carrito-section">
+        <div class="container">
+            <div class="left-col">
+                <a id="btn-volver">Volver</a>
+                <div>
+                    <p>Su Pedido</p>
+                </div>
+                <div id="resumen-pedido">
+
+                </div>
+                <div>
+                    <a id="btn-confirmar">Confirmar</a>
+                </div>
+                <div id="confirmacion"></div>
+            </div>
+            <div class="img-container">
+                <img class="preparando-img" src="images/preparando.jfif" alt="Illustration">
             </div>
         </div>
     </section>

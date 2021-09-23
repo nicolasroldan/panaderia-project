@@ -23,6 +23,32 @@ body {
   margin: 0 auto;
 }
 
+//Login section
+
+.login-btn {
+  margin-top: 1em;
+  background: var(--secondary-color);
+  color: var(--primary-color);
+  text-decoration: none;
+  padding: 0.6em 1.3em;
+  font-size: 1.4em;
+  border-radius: 5em;
+  font-weight: bold;
+  display: inline-block;
+  transition: all .5s ease-in-out;
+  border: 1px solid var(--primary-color);
+}
+
+#form-login {
+  label, input {
+    display: block;
+  }
+
+  input {
+    border-style: none;
+  }
+}
+
 //Navbar Section
 
 .navbar {
@@ -58,6 +84,10 @@ body {
       font-size: 1em;
       padding: 0.1em 1em;
     }
+
+    p {
+      margin: 0em 1em 0em 0em;
+    }
   
     ul.primary-nav {
       margin: 0;
@@ -76,9 +106,10 @@ body {
       font-weight: bold;
     }
 
-    li.carrito-link-btn a {
+    #carrito-link-btn {
+      cursor: pointer;
       color: var(--primary-color);
-      border: 3px solid var(--primary-color);
+      border: 2px solid var(--primary-color);
       font-weight: bold;
       border-radius: 5em;
       margin-top: -0.2em;
@@ -156,6 +187,15 @@ section {
     border-radius: 5em;
     font-weight: bold;
     display: inline-block;
+    transition: all .5s ease-in-out;
+    border: 1px solid var(--primary-color);
+
+    &:hover {
+      background: var(--primary-color);
+      color: var(--secondary-color);
+      border: 1px solid var(--secondary-color);
+      transform: scale(1.1);
+    }
   }
 }
 
@@ -230,21 +270,41 @@ section.about-section {
   border-radius: 5em;
   font-weight: bold;
   display: inline-block;
-}
-
-.agregar-item {
-  display: flex;
-  justify-content: space-evenly;
-  margin-top: 10px;
-
-  p {
-    margin: 0;
+  cursor: pointer;
+  transition: all .2s ease-in-out;
+  
+  &:hover {
+    transform: scale(1.1);
   }
 }
 
-.carrito-btn {
+.agregar-item {
+  display: none;
+  justify-content: space-evenly;
+  margin-top: 10px;
+  align-items: center;
+
+  div {
+    background: var(--primary-color);
+    width: 2em;
+    border-radius: 4px;                     
+    cursor: pointer;
+
+    i {
+      color: var(--secondary-color)
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 1.5em;
+  }
+}
+
+.carrito-btn-container {
   text-align: center;
-  a {
+  #carrito-btn {
+    cursor: pointer;
     background: var(--secondary-color);
     color: var(--primary-color);
     text-decoration: none;
@@ -253,6 +313,15 @@ section.about-section {
     border-radius: 5em;
     font-weight: bold;
     display: inline-block;
+    border: 1px solid var(--primary-color);
+    transition: all .5s ease-in-out;
+
+    &:hover {
+      background: var(--primary-color);
+      color: var(--secondary-color);
+      border: 1px solid var(--secondary-color);
+      transform: scale(1.1);
+    }
   }
 }
 
@@ -308,6 +377,83 @@ section.about-section {
       iframe {
         width: 100%;
         height: 100%;
+      }
+    }
+  }
+}
+
+// Seccion Carrito/confirmado de pedido
+
+.carrito-section {
+  display: none;
+  color: white;
+
+  .container {
+    display: flex;
+
+    .left-col {
+      width: 70%;
+
+      #btn-volver {
+        background: var(--secondary-color);
+        color: var(--primary-color);
+        text-decoration: none;
+        padding: 0.6em 1.3em;
+        font-size: 1.4em;
+        border-radius: 5em;
+        font-weight: bold;
+        display: inline-block;
+        cursor: pointer;
+      }
+
+      #btn-confirmar {
+        background: var(--secondary-color);
+        color: var(--primary-color);
+        text-decoration: none;
+        padding: 0.6em 1.3em;
+        font-size: 1.4em;
+        border-radius: 5em;
+        font-weight: bold;
+        display: none;
+        cursor: pointer;
+        transition: all .5s ease-in-out;
+        border: 1px solid var(--primary-color);
+        
+        &:hover {
+          background: var(--primary-color);
+          color: var(--secondary-color);
+          border: 1px solid var(--secondary-color);
+          transform: scale(1.1);
+        }
+      }
+
+      p {
+        color: var(--secondary-color);
+        text-align: justify;
+        font-size: 1.5em;
+        margin-top: 0;
+      }
+    
+      #resumen-pedido {
+        
+        ul {
+            list-style-type: none;
+            width: 100%;
+
+            li {
+              display: grid;
+              grid-template-columns: 60% 40%;
+            }
+        }
+      }
+    }
+
+    .img-container {
+      width: 30%;
+
+      .preparando-img {
+        width: 100%;
+        border-radius: 10px;
       }
     }
   }

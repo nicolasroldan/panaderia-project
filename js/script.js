@@ -1,63 +1,12 @@
 // Tienda virtual para compra de panes
 
-// Clases
-class Usuario {
-    constructor(id, nombre, email, direccion) {
-        this.id = id;
-        this.nombre = nombre;
-        this.email = email;
-        this.direccion = direccion;
-    }
-}
-
-class Pan {
-    constructor(id, tipo, costo, peso, imagen) {
-        this.id = id ? id : 0;
-        this.tipo = tipo;
-        this.costo = costo;
-        this.peso = peso;
-        this.imagen = imagen ? imagen : '';
-    }
-}
-
-class Pedido {
-    constructor(idUsuario, numeroPedido, carrito, direccionEntrega) {
-        this.idUsuario = idUsuario;
-        this.numeroPedido = numeroPedido,
-            this.carrito = carrito ? carrito : [];
-        this.direccionEntrega = direccionEntrega;
-    }
-
-    calcularCostoPedido() {
-        const costoPedido = this.carrito.reduce((acum, item) => acum + item.costo, 0);
-        return costoPedido;
-    }
-}
-
 // Variables
 
 let usuario;
 let carrito;
 let pedido;
-
-let cantidadTotalPanes;
-let cantidadPanDeCampo = 0;
-let cantidadPanCenteno = 0;
-let cantidadPanIntegral = 0;
-let cantidadFocaccia = 0;
-let cantidadPanHamburguesa = 0;
-let cantidadPanTrenza = 0;
-
-let panesDeCampoPendientes = [];
-let panesDeCentenoPendientes = [];
-let panesIntegralesPendientes = [];
-let panesFocacciasPendientes = [];
-let panesHamburguesaPendientes = [];
-let panesTrenzaPendientes = [];
-
 let precioTotal;
 
-const TIEMPO_ELABORACION = 2;
 const PRECIO_PAN_DE_CAMPO = 200;
 const PRECIO_PAN_CENTENO = 250;
 const PRECIO_PAN_INTEGRAL = 230;
@@ -65,162 +14,322 @@ const PRECIO_FOCACCIA = 230;
 const PRECIO_PAN_HAMBURGUESA = 80;
 const PRECIO_PAN_TRENZA = 100;
 
-let generadorIdUsuarios = 1;
-let generadorIdPedidos = 1;
 const listadoPanes = [];
+
+
+
+// Main
+login();
+
 
 // Funciones
 
-//Funcion que carga el listado de panes disponibles y los renderiza en el HTML
-function renderizarPanes() {
-    listadoPanes.push(new Pan(1, 'Pan de Campo', PRECIO_PAN_DE_CAMPO, '850gr', 'images/pan-campo.jpg'));
-    listadoPanes.push(new Pan(2, 'Pan de Centeno', PRECIO_PAN_CENTENO, '1000 gr', 'images/pan-centeno.webp'));
-    listadoPanes.push(new Pan(3, 'Pan de Integral', PRECIO_PAN_INTEGRAL, '1000 gr', 'images/pan1.jfif'));
-    listadoPanes.push(new Pan(4, 'Focaccia', PRECIO_FOCACCIA, '800gr', 'images/focaccia.jpg'));
-    listadoPanes.push(new Pan(5, 'Pan de Hamburguesa', PRECIO_PAN_HAMBURGUESA, '150 gr', 'images/pan-hamburguesa.jpg'));
-    listadoPanes.push(new Pan(6, 'Pan Trenza', PRECIO_PAN_TRENZA, '250 gr', 'images/trenza.jpg'));
 
-    listadoPanes.forEach(pan => {
-        let li = document.createElement('li');
-        li.id = pan.id;
-        li.innerHTML = `
-                     <img src="${pan.imagen}" alt="pan">
-                     <p>${pan.tipo} - $${pan.costo}</p>
-                     <a class="agregar-btn" href="">Agregar</a>
-                     <div class="agregar-item">
-                         <i class="fas fa-minus"></i>
-                         <p>0</p>
-                         <i class="fas fa-plus"></i>
-                     </div>`
-        document.getElementById('listaPanes').appendChild(li);
-    });
-}
+function login() {
+    let formLogin = document.getElementById("form-login");
+    formLogin.onsubmit = (event) => { validarFormulario(event) };
 
-// Funcion que da de alta y genera el nuevo usuario (si no lo encontro previamente en el localStorage)
-// Tambien chequea si tenia compras pendientes en el carrito, sino inicializa el array vacio
-function altaUsuario() {
     usuario = JSON.parse(localStorage.getItem('usuario'));
     carrito = JSON.parse(localStorage.getItem('carrito'));
 
     if (!usuario) {
-        const nombreUsuario = prompt('Vamos a tomar sus datos para procesar el pedido y su entrega.\nPor favor ingrese su nombre:');
-        const emailUsuario = prompt('Ingrese su email:');
-        const direccionUsuario = prompt('Ingrese la direccion de la entrega del pedido:');
-
-        usuario = new Usuario(generadorIdUsuarios, nombreUsuario, emailUsuario, direccionUsuario);
-        localStorage.setItem('usuario', JSON.stringify(usuario));
-        generadorIdUsuarios++;
+        document.getElementsByTagName('body')[0].style.backgroundColor = 'var(--primary-color)'
+        document.getElementById('login').style.display = 'block';
+        document.getElementById('nav').style.display = 'none';
+        document.getElementById('landing').style.display = 'none';
+        document.getElementById('about').style.display = 'none';
+        document.getElementById('productos').style.display = 'none';
+        document.getElementById('contacto').style.display = 'none';
+        document.getElementById('carrito').style.display = 'none';
     } else {
-        console.log(`Bienvenidx ${usuario.nombre}`);
+        document.getElementById('display-nombre-usuario').innerText = usuario.nombre;
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('nav').style.display = 'block';
+        document.getElementById('landing').style.display = 'block';
+        document.getElementById('about').style.display = 'block';
+        document.getElementById('productos').style.display = 'block';
+        document.getElementById('contacto').style.display = 'block';
+        document.getElementById('carrito').style.display = 'none';
     }
 
     if (!carrito) carrito = [];
+    renderizarPanes();
 
 }
 
-//Funcion que solicita al usuario que panes quiere agregar al carrito y los pushea al array carrito
-// Luego recorre el carrito filtrando por cada tipo de pan, para acumular la cantidad a comprar de cada pan
-function solicitarCantidades() {
-    let inputPanDeCampo = parseInt(prompt('¿Cuantos panes de campo desea llevar?'));
-    let inputPanCenteno = parseInt(prompt('¿Cuantos panes de centeno desea llevar?'));
-    let inputPanIntegral = parseInt(prompt('¿Cuantos panes integrales desea llevar?'));
-    let inputFocaccia = parseInt(prompt('¿Cuantas focaccias desea llevar?'));
-    let inputPanHamburguesa = parseInt(prompt('¿Cuantos panes de hamburguesa desea llevar?'));
-    let inputPanTrenza = parseInt(prompt('¿Cuantos panes Trenza desea llevar?'));
+function validarFormulario(event) {
+    event.preventDefault();
+    let form = event.target
+    usuario = new Usuario(form.children[1].value, form.children[3].value);
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    document.getElementsByTagName('body')[0].style.backgroundColor = '#f2f2f2'
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('nav').style.display = 'block';
+    document.getElementById('landing').style.display = 'block';
+    document.getElementById('about').style.display = 'block';
+    document.getElementById('productos').style.display = 'block';
+    document.getElementById('contacto').style.display = 'block';
+    document.getElementById('carrito').style.display = 'none';
 
-    if (inputPanDeCampo > 0) {
-        for (let i = 0; i < inputPanDeCampo; i++) {
-            carrito.push(new Pan(1, 'Pan de Campo', PRECIO_PAN_DE_CAMPO, '850 gr', ''));
-        }
-    }
+    document.getElementById('display-nombre-usuario').innerText = usuario.nombre;
 
-    if (inputPanCenteno > 0) {
-        for (let i = 0; i < inputPanCenteno; i++) {
-            carrito.push(new Pan(2, 'Pan de Centeno', PRECIO_PAN_CENTENO, '1000 gr', ''));
-        }
-    }
-
-    if (inputPanIntegral > 0) {
-        for (let i = 0; i < inputPanIntegral; i++) {
-            carrito.push(new Pan(3, 'Pan Integral', PRECIO_PAN_INTEGRAL, '1000 gr', ''));
-        }
-    }
-
-    if (inputFocaccia > 0) {
-        for (let i = 0; i < inputFocaccia; i++) {
-            carrito.push(new Pan(4, 'Focaccia', PRECIO_FOCACCIA, '800 gr', ''));
-        }
-    }
-
-    if (inputPanHamburguesa > 0) {
-        for (let i = 0; i < inputPanHamburguesa; i++) {
-            carrito.push(new Pan(5, 'Pan de Hamburguesa', PRECIO_PAN_HAMBURGUESA, '150 gr', ''));
-        }
-    }
-
-    if (inputPanTrenza > 0) {
-        for (let i = 0; i < inputPanTrenza; i++) {
-            carrito.push(new Pan(6, 'Pan Trenza', PRECIO_PAN_TRENZA, '250 gr', ''));
-        }
-    }
-
-    cantidadTotalPanes = carrito.length;
-
-    panesDeCampoPendientes = carrito.filter(item => item.tipo === 'Pan de Campo');
-    cantidadPanDeCampo += panesDeCampoPendientes.length;
-    panesDeCentenoPendientes = carrito.filter(item => item.tipo === 'Pan de Centeno');
-    cantidadPanCenteno += panesDeCentenoPendientes.length;
-    panesIntegralesPendientes = carrito.filter(item => item.tipo === 'Pan Integral');
-    cantidadPanIntegral += panesIntegralesPendientes.length;
-    panesFocacciasPendientes = carrito.filter(item => item.tipo === 'Focaccia');
-    cantidadFocaccia += panesFocacciasPendientes.length;
-    panesHamburguesaPendientes = carrito.filter(item => item.tipo === 'Pan de Hamburguesa');
-    cantidadPanHamburguesa += panesHamburguesaPendientes.length;
-    panesTrenzaPendientes = carrito.filter(item => item.tipo === 'Pan Trenza');
-    cantidadPanTrenza += panesTrenzaPendientes.length;
 }
 
+//Funcion que carga el listado de panes disponibles y los renderiza en el HTML
+function renderizarPanes() {
+    document.getElementById('carrito-btn').onclick = () => { armarPedido() };
+    document.getElementById('carrito-link-btn').onclick = () => { armarPedido() };
+
+
+    listadoPanes.push(new Pan(1, 'Pan de Campo', PRECIO_PAN_DE_CAMPO, '850gr', 'images/pan-campo.jpg', 20, 0));
+    listadoPanes.push(new Pan(2, 'Pan de Centeno', PRECIO_PAN_CENTENO, '1000 gr', 'images/pan-centeno.webp', 20, 0));
+    listadoPanes.push(new Pan(3, 'Pan de Integral', PRECIO_PAN_INTEGRAL, '1000 gr', 'images/pan1.jfif', 20, 0));
+    listadoPanes.push(new Pan(4, 'Focaccia', PRECIO_FOCACCIA, '800gr', 'images/focaccia.jpg', 20, 0));
+    listadoPanes.push(new Pan(5, 'Pan de Hamburguesa', PRECIO_PAN_HAMBURGUESA, '150 gr', 'images/pan-hamburguesa.jpg', 20, 0));
+    listadoPanes.push(new Pan(6, 'Pan Trenza', PRECIO_PAN_TRENZA, '250 gr', 'images/trenza.jpg', 20, 0));
+
+    // Cargar panes desde el carrito
+
+    if (carrito.length > 0) {
+        carrito.forEach(panAComprar => {
+            let panAReemplazar = listadoPanes.find(panInicial => panInicial.id === panAComprar.id);
+
+            if (panAReemplazar) {
+                panAReemplazar.cantidadPedido = panAComprar.cantidadPedido;
+                panAReemplazar.stock = panAComprar.stock;
+            }
+        })
+    }
+
+    listadoPanes.forEach(pan => {
+        let li = document.createElement('li');
+        li.innerHTML = `
+                     <img src="${pan.imagen}" alt="pan">
+                     <p>${pan.tipo} - $${pan.costo}</p>
+                     <a id="${pan.id}-add-btn" class="agregar-btn" >Agregar</a>
+                     <div id="${pan.id}-add-section" class="agregar-item">
+                         <div id="${pan.id}-remove">
+                         <i style="color: var(--secondary-color)" class="fas fa-minus"></i>
+                         </div>
+                         <p id="${pan.id}-cantidad">${pan.cantidadPedido}</p>
+                         <div id="${pan.id}-add">
+                            <i class="fas fa-plus"></i>
+                         </div>
+                     </div>`
+        document.getElementById('listaPanes').appendChild(li);
+
+
+
+        document.getElementById(`${pan.id}-add`).onclick = () => { agregarPan(pan) };
+        document.getElementById(`${pan.id}-remove`).onclick = () => { removerPan(pan) };
+        document.getElementById(`${pan.id}-add-btn`).onclick = () => {
+            let elementos = document.getElementById(`${pan.id}-add-section`)
+            elementos.style.display = 'flex';
+
+        };
+        // debugger
+        if (panDisponible(pan) && pan.cantidadPedido === 0) {
+            document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
+        } else if (!panDisponible(pan)) {
+            document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
+            document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Cantidad maxima!'
+            let elementos = document.getElementById(`${pan.id}-add-section`)
+            elementos.style.display = 'flex';
+        } else if (pan.cantidadPedido > 0) {
+            let elementos = document.getElementById(`${pan.id}-add-section`)
+            elementos.style.display = 'flex';
+        }
+    });
+
+    getCantidadTotalPanes();
+    document.getElementById('carrito-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+}
+
+function panDisponible(pan) {
+    if (pan.stock > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function agregarCantidad(cantidad, pan) {
+    if (cantidad <= pan.stock) {
+        pan.cantidadPedido += cantidad;
+        pan.stock -= cantidad;
+    }
+}
+
+function removerCantidad(cantidad, pan) {
+    if ((pan.cantidadPedido - cantidad) >= 0) {
+        pan.cantidadPedido -= cantidad;
+        pan.stock += cantidad;
+    }
+}
+
+function agregarPan(pan) {
+    //si no hacia esta copia del objeto pan, se modificaba el objeto que pushee al carrito
+    let copiaPan = JSON.parse(JSON.stringify(pan));
+    let panEnCarrito = carrito.find(element => element.id === pan.id);
+
+    agregarCantidad(1, pan);
+    document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
+
+    if (!panEnCarrito) {
+        agregarCantidad(1, copiaPan);
+        carrito.push(copiaPan);
+    } else {
+        carrito.forEach(panActualizar => {
+            if (panActualizar.id === pan.id) {
+                agregarCantidad(1, panActualizar);
+            }
+        })
+    }
+
+    // let panEnCarrito = carrito.find(element => element.id === pan.id);
+
+    // agregarCantidad(1, pan);
+    // document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
+
+    // if (!panEnCarrito) {
+    //     carrito.push(pan);
+    // } else {
+    //     carrito.forEach(panActualizar => {
+    //         if(panActualizar.id === pan.id) {
+    //             agregarCantidad(1, panActualizar);
+    //         }
+    //     })
+    // }
+    if (panDisponible(pan)) {
+        document.getElementById(`${pan.id}-remove`).style.visibility = 'visible';
+    } else {
+        document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
+    }
+    getCantidadTotalPanes();
+    document.getElementById('carrito-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    document.getElementById('carrito-link-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    if (!panDisponible(pan)) {
+        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Cantidad maxima!'
+    }
+}
+
+function removerPan(pan) {
+    let panEnCarrito = carrito.find(element => element.id === pan.id);
+    removerCantidad(1, pan);
+    document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
+
+    if (!panEnCarrito) {
+        carrito.push(pan)
+    } else {
+        carrito.forEach((panActualizar, index) => {
+            if (panActualizar.id === pan.id) {
+                removerCantidad(1, panActualizar);
+                if (panActualizar.cantidadPedido === 0) {
+                    carrito.splice(index, 1)
+                }
+            }
+        })
+    }
+    //
+    if (panDisponible(pan) && pan.cantidadPedido === 0) {
+        document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
+    } else if (panDisponible(pan)) {
+        document.getElementById(`${pan.id}-add`).style.visibility = 'visible';
+
+    }
+    /////////////
+    getCantidadTotalPanes();
+    document.getElementById('carrito-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    document.getElementById('carrito-link-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    if (panDisponible(pan)) {
+        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Agregar';
+    }
+}
+
+function getCantidadTotalPanes() {
+    cantidadTotalPanes = listadoPanes.reduce((acum, item) => acum + item.cantidadPedido, 0);;
+}
+
+function vaciarCarrito() {
+    carrito = [];
+}
 //Funcion que calcula el costo total del pedido
 function armarPedido() {
-    pedido = new Pedido(usuario.id, generadorIdPedidos, carrito, usuario.direccion);
+    pedido = new Pedido(carrito);
     precioTotal = pedido.calcularCostoPedido();
-    generadorIdPedidos++;
-    return precioTotal;
-}
+    document.getElementById('nav').style.display = 'none';
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('about').style.display = 'none';
+    document.getElementById('productos').style.display = 'none';
+    document.getElementById('contacto').style.display = 'none';
+    document.getElementById('carrito').style.display = 'block';
 
-//Funcion que devuelve mensaje final luego de confirmar la compra
-// Si el usuario confirma la compra se vacia el carrito y se guarda en el localStorage y luego se le informa el costo total de su pedido
-//Si el usuario no confirma se actualiza el carrito en localStorage con el pedido pendiente en el carrito
-function informarEntrega(costo) {
-    let confirmaCompra = prompt('¿Confirmas la compra?');
 
-    if (confirmaCompra.toUpperCase() === 'SI') {
-        carrito = [];
-        localStorage.setItem('carrito', JSON.stringify(carrito))
+    ulInformePedidoFinal.innerHTML = '';
 
-        console.log(`
-        Hola ${usuario.nombre}!\n
-        Tu pedido (nro° ${pedido.numeroPedido}) es:\n
-        Panes de campo (${cantidadPanDeCampo})\n
-        Panes de centeno (${cantidadPanCenteno})\n
-        Panes Integrales (${cantidadPanIntegral})\n
-        Focaccias (${cantidadFocaccia})\n
-        Panes de Hamburguesa (${cantidadPanHamburguesa})\n
-        Panes Trenza (${cantidadPanTrenza})\n
-        Total (${cantidadTotalPanes}) panes\n
-        El costo total es de $${costo} y tu pedido estara listo en ${TIEMPO_ELABORACION} dias.\n
-        Te lo llevaremos a la direccion que nos indicaste: ${usuario.direccion}.\n
-        Muchas gracias por tu compra!`);
+    carrito.forEach(pan => {
+        ulInformePedidoFinal.innerHTML += `<li>
+        <p>${pan.tipo} (x${pan.cantidadPedido}) ............</p>
+        <p>$${pan.cantidadPedido * pan.costo}</p>
+    </li>`;
+    })
+    ulInformePedidoFinal.innerHTML += `<li>
+             <p>TOTAL: $${precioTotal}</p>
+         </li>`;
+    document.getElementById('resumen-pedido').appendChild(ulInformePedidoFinal);
+
+
+    document.getElementById('resumen-pedido').appendChild(ulInformePedidoFinal);
+    if (carrito.length > 0) {
+        document.getElementById('btn-confirmar').style.display = 'inline-block';
     } else {
-        localStorage.setItem('carrito', JSON.stringify(carrito))
-        console.log('Tu pedido quedara pendiente en el carrito de compras para cuando gustes confirmar la compra!')
+        document.getElementById('btn-confirmar').style.display = 'none';
     }
-
 }
 
-// Main
-renderizarPanes();
-altaUsuario();
-solicitarCantidades();
-informarEntrega(armarPedido());
+function confirmarCompra() {
+    document.getElementById('btn-confirmar').innerHTML = '<span><i style="color: var(--primary-color)" class="fas fa-spinner fa-spin"></i></span>'
+    setTimeout(() => {
+        let botonConfirmar = document.getElementById('btn-confirmar');
+        let botonVolver = document.getElementById('btn-volver');
+        botonConfirmar.parentNode.removeChild(botonConfirmar);
+        botonVolver.parentNode.removeChild(botonVolver);
+        let confirmacion = generarMensajeCompra();
+        document.getElementById('confirmacion').append(confirmacion);
+        vaciarCarrito();
+        localStorage.clear();
+        redireccionarAInicio();
+
+    }, 5000)
+}
+
+function generarMensajeCompra() {
+    let div = document.createElement('div');
+    div.innerHTML = `<p>Muchas gracias por tu compra ${usuario.nombre}!</p>`
+    return div;
+}
+
+function goToHomePage() {
+    document.getElementById('nav').style.display = 'block';
+    document.getElementById('landing').style.display = 'block';
+    document.getElementById('about').style.display = 'block';
+    document.getElementById('productos').style.display = 'block';
+    document.getElementById('contacto').style.display = 'block';
+    document.getElementById('carrito').style.display = 'none';
+}
+
+function redireccionarAInicio() {
+    let div = document.createElement('div');
+    div.innerHTML = '<p>Seras redirigidx al inicio en unos segundos...</p>'
+    document.getElementById('confirmacion').append(div);
+    setTimeout(() => {
+
+        window.location.reload();
+    }, 5000)
+}
+
 
