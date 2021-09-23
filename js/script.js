@@ -16,10 +16,6 @@ const PRECIO_PAN_TRENZA = 100;
 
 const listadoPanes = [];
 
-// Main
-
-login();
-
 // Funciones
 
 // 1 - Si no existe un usuario, lo hago loggerase. Llamo a la funcion que valida el formulario (crea el usuario, lo guarda en localStorage)
@@ -346,4 +342,7 @@ function redireccionarAInicio() {
     }, 5000)
 }
 
+// Main
+
+login();
 
