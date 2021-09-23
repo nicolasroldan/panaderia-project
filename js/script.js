@@ -157,10 +157,94 @@ function renderSeccionEleccionPanes(pan) {
 }
 
 function panDisponible(pan) {
-    if (pan.stock > 0) {
-        return true;
+    return pan.stock > 0;
+}
+
+// Hago una deep copy del objeto pan que me viene por parametro. Si no existia el pan en el carrito le agrego una unidad (a esa copia del pan) y luego lo pusheo al carrito
+// si el pan ya existia en el carrito, le agrego una unidad
+// tambien incremento el pan que me viene por parametro, ya que ese es del array listadoPanes y ese array es el que se renderiza en el DOM. 
+// El carrito solo lo uso para persistir los datos y cargar panes pendientes si se refresca la pagina
+// Por ultimo guardo el carrito en localStorage
+function agregarPan(pan) {
+    //si no hacia esta copia del objeto pan, se modificaba el objeto que pushee al carrito
+    let copiaPan = JSON.parse(JSON.stringify(pan));
+    let panEnCarrito = carrito.find(element => element.id === pan.id);
+
+    agregarCantidad(1, pan);
+    document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
+
+    if (!panEnCarrito) {
+        agregarCantidad(1, copiaPan);
+        carrito.push(copiaPan);
     } else {
-        return false;
+        agregarCantidad(1, panEnCarrito);
+    }
+
+    // let panEnCarrito = carrito.find(element => element.id === pan.id);
+
+    // agregarCantidad(1, pan);
+    // document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
+
+    // if (!panEnCarrito) {
+    //     carrito.push(pan);
+    // } else {
+    //     agregarCantidad(1, panEnCarrito);
+    // }
+
+    if (panDisponible(pan)) {
+        document.getElementById(`${pan.id}-remove`).style.visibility = 'visible';
+    } else {
+        document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
+    }
+    
+    getCantidadTotalPanes();
+
+    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarritoNav.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    if (!panDisponible(pan)) {
+        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Cantidad maxima!'
+    }
+}
+
+
+// 1 - Le saco una unidad al pan, y si no existia, lo pusheo al carrito
+// 2 - Si restando llego a 0 unidades de ese pan, elimino el objeto del carrito
+// 3 - Logica para ocultar o mostrar los botones (-) y (+) segun si el usuario eligio 0 panes o si llego al stock maximo
+// 4 - Muestro la cantidad total del carrito en el DOM
+// 5 - Guardo carrito en localStorage
+function removerPan(pan) {
+    let panEnCarrito = carrito.find(element => element.id === pan.id);
+    removerCantidad(1, pan);
+    document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
+
+    if (!panEnCarrito) {
+        carrito.push(pan);
+    } else {
+        carrito.forEach((panActualizar, index) => {
+            if (panActualizar.id === pan.id) {
+                removerCantidad(1, panActualizar);
+                if (panActualizar.cantidadPedido === 0) {
+                    carrito.splice(index, 1);
+                }
+            }
+        })
+    }
+
+    if (panDisponible(pan) && pan.cantidadPedido === 0) {
+        document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
+    } else if (panDisponible(pan)) {
+        document.getElementById(`${pan.id}-add`).style.visibility = 'visible';
+    }
+
+    getCantidadTotalPanes();
+    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarritoNav.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    if (panDisponible(pan)) {
+        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Agregar';
     }
 }
 
@@ -178,95 +262,16 @@ function removerCantidad(cantidad, pan) {
     }
 }
 
-function agregarPan(pan) {
-    //si no hacia esta copia del objeto pan, se modificaba el objeto que pushee al carrito
-    let copiaPan = JSON.parse(JSON.stringify(pan));
-    let panEnCarrito = carrito.find(element => element.id === pan.id);
-
-    agregarCantidad(1, pan);
-    document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
-
-    if (!panEnCarrito) {
-        agregarCantidad(1, copiaPan);
-        carrito.push(copiaPan);
-    } else {
-        carrito.forEach(panActualizar => {
-            if (panActualizar.id === pan.id) {
-                agregarCantidad(1, panActualizar);
-            }
-        })
-    }
-
-    // let panEnCarrito = carrito.find(element => element.id === pan.id);
-
-    // agregarCantidad(1, pan);
-    // document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
-
-    // if (!panEnCarrito) {
-    //     carrito.push(pan);
-    // } else {
-    //     carrito.forEach(panActualizar => {
-    //         if(panActualizar.id === pan.id) {
-    //             agregarCantidad(1, panActualizar);
-    //         }
-    //     })
-    // }
-    if (panDisponible(pan)) {
-        document.getElementById(`${pan.id}-remove`).style.visibility = 'visible';
-    } else {
-        document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
-    }
-    getCantidadTotalPanes();
-    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
-    btnCarritoNav.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
-
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    if (!panDisponible(pan)) {
-        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Cantidad maxima!'
-    }
-}
-
-function removerPan(pan) {
-    let panEnCarrito = carrito.find(element => element.id === pan.id);
-    removerCantidad(1, pan);
-    document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
-
-    if (!panEnCarrito) {
-        carrito.push(pan)
-    } else {
-        carrito.forEach((panActualizar, index) => {
-            if (panActualizar.id === pan.id) {
-                removerCantidad(1, panActualizar);
-                if (panActualizar.cantidadPedido === 0) {
-                    carrito.splice(index, 1)
-                }
-            }
-        })
-    }
-    
-    if (panDisponible(pan) && pan.cantidadPedido === 0) {
-        document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
-    } else if (panDisponible(pan)) {
-        document.getElementById(`${pan.id}-add`).style.visibility = 'visible';
-
-    }
-   
-    getCantidadTotalPanes();
-    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
-    btnCarritoNav.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
-
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    if (panDisponible(pan)) {
-        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Agregar';
-    }
-}
-
 
 // 1 - Calculo la cantidad de panes en total
 function getCantidadTotalPanes() {
     cantidadTotalPanes = carrito.reduce((acum, item) => acum + item.cantidadPedido, 0);;
 }
 
+// 1 - Creo un nuevo pedido
+// 2 - Muestro seccion carrito y oculto el resto de la pagina
+// 3 - Renderizo en el DOM el pedido
+// 4 - Muestro el boton de confirmar solo si la cantidad de panes > 0
 function armarPedido() {
     pedido = new Pedido(carrito);
     precioTotal = pedido.calcularCostoPedido();
@@ -277,50 +282,51 @@ function armarPedido() {
     contactoSection.style.display = 'none';
     carritoSection.style.display = 'block';
 
-
     ulInformePedidoFinal.innerHTML = '';
 
     carrito.forEach(pan => {
         ulInformePedidoFinal.innerHTML += `<li>
-        <p>${pan.tipo} (x${pan.cantidadPedido}) ............</p>
-        <p>$${pan.cantidadPedido * pan.costo}</p>
-    </li>`;
-    })
+                                            <p>${pan.tipo} (x${pan.cantidadPedido}) ............</p>
+                                            <p>$${pan.cantidadPedido * pan.costo}</p>
+                                          </li>`;
+    });
+
     ulInformePedidoFinal.innerHTML += `<li>
              <p>TOTAL: $${precioTotal}</p>
          </li>`;
-    document.getElementById('resumen-pedido').appendChild(ulInformePedidoFinal);
 
+    divResumenPedido.appendChild(ulInformePedidoFinal);
 
-    document.getElementById('resumen-pedido').appendChild(ulInformePedidoFinal);
     if (carrito.length > 0) {
-        document.getElementById('btn-confirmar').style.display = 'inline-block';
+        btnConfirmar.style.display = 'inline-block';
     } else {
-        document.getElementById('btn-confirmar').style.display = 'none';
+        btnConfirmar.style.display = 'none';
     }
 }
 
+// 1 - El boton de confirmar llama a esta funcion.
+// 2 - Muestro un spinner durante 5 segundos
+// 3 - Elimino la data del localStorage
 function confirmarCompra() {
-    document.getElementById('btn-confirmar').innerHTML = '<span><i style="color: var(--primary-color)" class="fas fa-spinner fa-spin"></i></span>'
+    btnConfirmar.innerHTML = '<span><i style="color: var(--primary-color)" class="fas fa-spinner fa-spin"></i></span>';
+    btnVolver.parentNode.removeChild(btnVolver);
     setTimeout(() => {
-        let botonConfirmar = document.getElementById('btn-confirmar');
-        let botonVolver = document.getElementById('btn-volver');
-        botonConfirmar.parentNode.removeChild(botonConfirmar);
-        botonVolver.parentNode.removeChild(botonVolver);
+        btnConfirmar.parentNode.removeChild(btnConfirmar);
         let confirmacion = generarMensajeCompra();
-        document.getElementById('confirmacion').append(confirmacion);
+        mensajeConfirmacion.append(confirmacion);
         localStorage.clear();
         redireccionarAInicio();
-
     }, 5000)
 }
 
+// 1 - Muestro en el DOM un mensaje de despedida
 function generarMensajeCompra() {
     let div = document.createElement('div');
-    div.innerHTML = `<p>Muchas gracias por tu compra ${usuario.nombre}!</p>`
+    div.innerHTML = `<p>Muchas gracias por tu compra ${usuario.nombre}!</p>`;
     return div;
 }
 
+// 1 - El boton "Volver" llama a esta funcion, la cual redirecciona el usuario al inicio de la pagina
 function goToHomePage() {
     document.getElementById('nav').style.display = 'block';
     landingSection.style.display = 'block';
@@ -330,12 +336,12 @@ function goToHomePage() {
     carritoSection.style.display = 'none';
 }
 
+// 1 - Luego de haber confimado la compra y haber vaciado el localStorage, se recarga la pagina para volver a iniciar el flujo de la app
 function redireccionarAInicio() {
     let div = document.createElement('div');
-    div.innerHTML = '<p>Seras redirigidx al inicio en unos segundos...</p>'
-    document.getElementById('confirmacion').append(div);
+    div.innerHTML = '<p>Seras redirigidx al inicio en unos segundos...</p>';
+    mensajeConfirmacion.append(div);
     setTimeout(() => {
-
         window.location.reload();
     }, 5000)
 }
