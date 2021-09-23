@@ -19,4 +19,11 @@ const productosSection = document.getElementById('productos');
 const contactoSection = document.getElementById('contacto');
 const carritoSection = document.getElementById('carrito');
 
+//////
+
 const nombreUsuario = document.getElementById('display-nombre-usuario');
+
+const btnCarrito = document.getElementById('carrito-btn');
+const btnCarritoNav = document.getElementById('carrito-link-btn');
+
+const listaPanes = document.getElementById('listaPanes');

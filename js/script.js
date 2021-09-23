@@ -79,31 +79,15 @@ function validarFormulario(event) {
     nombreUsuario.innerText = usuario.nombre;
 }
 
+// 1 - Asigno funcion que arma el pedido a los 2 botnos de "Ir al carrito"
+// 2 - Llamo a setear panes (ahi hago la carga inicial de panes y si ya tenia panes pendientes en el carrito, se los agrego al listadoPanes)
+// 3 - recorro el listado de panes y los muestro en el DOM
+// 4 - Llamo a la funcion renderSeccionEleccionPanes(), ahi manipulo el DOM para dejar al usuario agregar o restar panes al carrito
+// 5 - Llamo a getCantidadTotalPanes() para obtener el total de los panes y mostrarlo en el DOM.
 function renderizarPanes() {
-    document.getElementById('carrito-btn').onclick = () => { armarPedido() };
-    document.getElementById('carrito-link-btn').onclick = () => { armarPedido() };
-
-
-    listadoPanes.push(new Pan(1, 'Pan de Campo', PRECIO_PAN_DE_CAMPO, '850gr', 'images/pan-campo.jpg', 20, 0));
-    listadoPanes.push(new Pan(2, 'Pan de Centeno', PRECIO_PAN_CENTENO, '1000 gr', 'images/pan-centeno.webp', 20, 0));
-    listadoPanes.push(new Pan(3, 'Pan de Integral', PRECIO_PAN_INTEGRAL, '1000 gr', 'images/pan1.jfif', 20, 0));
-    listadoPanes.push(new Pan(4, 'Focaccia', PRECIO_FOCACCIA, '800gr', 'images/focaccia.jpg', 20, 0));
-    listadoPanes.push(new Pan(5, 'Pan de Hamburguesa', PRECIO_PAN_HAMBURGUESA, '150 gr', 'images/pan-hamburguesa.jpg', 20, 0));
-    listadoPanes.push(new Pan(6, 'Pan Trenza', PRECIO_PAN_TRENZA, '250 gr', 'images/trenza.jpg', 20, 0));
-
-    // Cargar panes desde el carrito
-
-    if (carrito.length > 0) {
-        carrito.forEach(panAComprar => {
-            let panAReemplazar = listadoPanes.find(panInicial => panInicial.id === panAComprar.id);
-
-            if (panAReemplazar) {
-                panAReemplazar.cantidadPedido = panAComprar.cantidadPedido;
-                panAReemplazar.stock = panAComprar.stock;
-            }
-        })
-    }
-
+    btnCarrito.onclick = () => { armarPedido() };
+    btnCarritoNav.onclick = () => { armarPedido() };
+    setearPanes();
     listadoPanes.forEach(pan => {
         let li = document.createElement('li');
         li.innerHTML = `
@@ -118,34 +102,58 @@ function renderizarPanes() {
                          <div id="${pan.id}-add">
                             <i class="fas fa-plus"></i>
                          </div>
-                     </div>`
-        document.getElementById('listaPanes').appendChild(li);
+                     </div>`;
 
-
-
-        document.getElementById(`${pan.id}-add`).onclick = () => { agregarPan(pan) };
-        document.getElementById(`${pan.id}-remove`).onclick = () => { removerPan(pan) };
-        document.getElementById(`${pan.id}-add-btn`).onclick = () => {
-            let elementos = document.getElementById(`${pan.id}-add-section`)
-            elementos.style.display = 'flex';
-
-        };
-        // debugger
-        if (panDisponible(pan) && pan.cantidadPedido === 0) {
-            document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
-        } else if (!panDisponible(pan)) {
-            document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
-            document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Cantidad maxima!'
-            let elementos = document.getElementById(`${pan.id}-add-section`)
-            elementos.style.display = 'flex';
-        } else if (pan.cantidadPedido > 0) {
-            let elementos = document.getElementById(`${pan.id}-add-section`)
-            elementos.style.display = 'flex';
-        }
+        listaPanes.appendChild(li);
+        renderSeccionEleccionPanes(pan);
     });
-
     getCantidadTotalPanes();
-    document.getElementById('carrito-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+}
+
+// 1 - Hago la carga inicial de panes y si ya tenia panes previos pendientes en el carrito, actualizo la cantidad del pedido y el stock restante de cada pan en listadoPanes
+function setearPanes() {
+    listadoPanes.push(new Pan(1, 'Pan de Campo', PRECIO_PAN_DE_CAMPO, '850gr', 'images/pan-campo.jpg', 20, 0));
+    listadoPanes.push(new Pan(2, 'Pan de Centeno', PRECIO_PAN_CENTENO, '1000 gr', 'images/pan-centeno.webp', 20, 0));
+    listadoPanes.push(new Pan(3, 'Pan de Integral', PRECIO_PAN_INTEGRAL, '1000 gr', 'images/pan1.jfif', 20, 0));
+    listadoPanes.push(new Pan(4, 'Focaccia', PRECIO_FOCACCIA, '800gr', 'images/focaccia.jpg', 20, 0));
+    listadoPanes.push(new Pan(5, 'Pan de Hamburguesa', PRECIO_PAN_HAMBURGUESA, '150 gr', 'images/pan-hamburguesa.jpg', 20, 0));
+    listadoPanes.push(new Pan(6, 'Pan Trenza', PRECIO_PAN_TRENZA, '250 gr', 'images/trenza.jpg', 20, 0));
+
+    if (carrito.length > 0) {
+        carrito.forEach(panPendienteEnCarrito => {
+            let panAReemplazar = listadoPanes.find(pan => pan.id === panPendienteEnCarrito.id);
+            if (panAReemplazar) {
+                panAReemplazar.cantidadPedido = panPendienteEnCarrito.cantidadPedido;
+                panAReemplazar.stock = panPendienteEnCarrito.stock;
+            }
+        })
+    }
+}
+
+// 1 - Agrego event listener a los botones que agregan y quitan panes del pedido
+// 2 - Desarrollo logica uque muestra u oculta el div donde estan los botones (+) y (-)
+// Si la cantidad es 0, oculto el boton (-). Si la cantidad llego al stock maximo, oculto el boton (+)
+// Si recargo la pagina y tenia panes pendientes en el carrito, despliego el div que contiene los botones (+) y (-)
+function renderSeccionEleccionPanes(pan) {
+    let divEleccionPanes = document.getElementById(`${pan.id}-add-section`);
+
+    document.getElementById(`${pan.id}-add`).onclick = () => { agregarPan(pan) };
+    document.getElementById(`${pan.id}-remove`).onclick = () => { removerPan(pan) };
+
+    document.getElementById(`${pan.id}-add-btn`).onclick = () => {
+        divEleccionPanes.style.display = 'flex';
+    };
+
+    if (panDisponible(pan) && pan.cantidadPedido === 0) {
+        document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
+    } else if (!panDisponible(pan)) {
+        document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
+        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Cantidad maxima!';
+        divEleccionPanes.style.display = 'flex';
+    } else if (pan.cantidadPedido > 0) {
+        divEleccionPanes.style.display = 'flex';
+    }
 }
 
 function panDisponible(pan) {
@@ -209,8 +217,8 @@ function agregarPan(pan) {
         document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
     }
     getCantidadTotalPanes();
-    document.getElementById('carrito-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
-    document.getElementById('carrito-link-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarritoNav.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
 
     localStorage.setItem('carrito', JSON.stringify(carrito));
     if (!panDisponible(pan)) {
@@ -244,8 +252,8 @@ function removerPan(pan) {
     }
    
     getCantidadTotalPanes();
-    document.getElementById('carrito-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
-    document.getElementById('carrito-link-btn').innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarritoNav.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
 
     localStorage.setItem('carrito', JSON.stringify(carrito));
     if (panDisponible(pan)) {
@@ -253,14 +261,12 @@ function removerPan(pan) {
     }
 }
 
+
+// 1 - Calculo la cantidad de panes en total
 function getCantidadTotalPanes() {
-    cantidadTotalPanes = listadoPanes.reduce((acum, item) => acum + item.cantidadPedido, 0);;
+    cantidadTotalPanes = carrito.reduce((acum, item) => acum + item.cantidadPedido, 0);;
 }
 
-function vaciarCarrito() {
-    carrito = [];
-}
-//Funcion que calcula el costo total del pedido
 function armarPedido() {
     pedido = new Pedido(carrito);
     precioTotal = pedido.calcularCostoPedido();
@@ -303,7 +309,6 @@ function confirmarCompra() {
         botonVolver.parentNode.removeChild(botonVolver);
         let confirmacion = generarMensajeCompra();
         document.getElementById('confirmacion').append(confirmacion);
-        vaciarCarrito();
         localStorage.clear();
         redireccionarAInicio();
 
