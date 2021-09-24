@@ -18,7 +18,7 @@ const listadoPanes = [];
 
 // Funciones
 
-// 1 - Si no existe un usuario, lo hago loggerase. Llamo a la funcion que valida el formulario (crea el usuario, lo guarda en localStorage)
+// 1 - Si no existe un usuario, lo hago loggearse. Llamo a la funcion que valida el formulario (crea el usuario, lo guarda en localStorage)
 // 2 -  Traigo el usuario y el carrito del localStorage
 // 3 - Si existe el usuario muestro la pagina.
 // 4 - Llamo a la funcion que renderiza la lista de panes
@@ -156,19 +156,19 @@ function panDisponible(pan) {
     return pan.stock > 0;
 }
 
-// Hago una deep copy del objeto pan que me viene por parametro. Si no existia el pan en el carrito le agrego una unidad (a esa copia del pan) y luego lo pusheo al carrito
+// Hago una copia del objeto pan que me viene por parametro. Si no existia el pan en el carrito le agrego una unidad (a esa copia del pan) y luego lo pusheo al carrito
 // si el pan ya existia en el carrito, le agrego una unidad
 // tambien incremento el pan que me viene por parametro, ya que ese es del array listadoPanes y ese array es el que se renderiza en el DOM. 
 // El carrito solo lo uso para persistir los datos y cargar panes pendientes si se refresca la pagina
 // Por ultimo guardo el carrito en localStorage
 function agregarPan(pan) {
-    //si no hacia esta copia del objeto pan, se modificaba el objeto que pushee al carrito
-    let copiaPan = JSON.parse(JSON.stringify(pan));
-    let panEnCarrito = carrito.find(element => element.id === pan.id);
-
+    //si no hacia esta copia del objeto pan, cuando incrementaba la cantidad de un pan en el carrito, se duplicaba la cantidad y me agregaba 2 unidades en vez de 1 unidad
+    let copiaPan = new Pan(pan.id, pan.tipo, pan.costo, pan.peso, pan.imagen, pan.stock, pan.cantidadPedido);
+    
     agregarCantidad(1, pan);
     document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
-
+    
+    let panEnCarrito = carrito.find(element => element.id === pan.id);
     if (!panEnCarrito) {
         agregarCantidad(1, copiaPan);
         carrito.push(copiaPan);
@@ -176,11 +176,10 @@ function agregarPan(pan) {
         agregarCantidad(1, panEnCarrito);
     }
 
-    // let panEnCarrito = carrito.find(element => element.id === pan.id);
-
     // agregarCantidad(1, pan);
     // document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
 
+    // let panEnCarrito = carrito.find(element => element.id === pan.id);
     // if (!panEnCarrito) {
     //     carrito.push(pan);
     // } else {
@@ -211,22 +210,17 @@ function agregarPan(pan) {
 // 4 - Muestro la cantidad total del carrito en el DOM
 // 5 - Guardo carrito en localStorage
 function removerPan(pan) {
-    let panEnCarrito = carrito.find(element => element.id === pan.id);
     removerCantidad(1, pan);
     document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
 
-    if (!panEnCarrito) {
-        carrito.push(pan);
-    } else {
-        carrito.forEach((panActualizar, index) => {
-            if (panActualizar.id === pan.id) {
-                removerCantidad(1, panActualizar);
-                if (panActualizar.cantidadPedido === 0) {
-                    carrito.splice(index, 1);
-                }
+    carrito.forEach((panActualizar, index) => {
+        if (panActualizar.id === pan.id) {
+            removerCantidad(1, panActualizar);
+            if (panActualizar.cantidadPedido === 0) {
+                carrito.splice(index, 1);
             }
-        })
-    }
+        }
+    })
 
     if (panDisponible(pan) && pan.cantidadPedido === 0) {
         document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
