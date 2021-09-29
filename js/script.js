@@ -162,7 +162,6 @@ function panDisponible(pan) {
 // El carrito solo lo uso para persistir los datos y cargar panes pendientes si se refresca la pagina
 // Por ultimo guardo el carrito en localStorage
 function agregarPan(pan) {
-    //si no hacia esta copia del objeto pan, cuando incrementaba la cantidad de un pan en el carrito, se duplicaba la cantidad y me agregaba 2 unidades en vez de 1 unidad
     let copiaPan = new Pan(pan.id, pan.tipo, pan.costo, pan.peso, pan.imagen, pan.stock, pan.cantidadPedido);
     
     agregarCantidad(1, pan);
@@ -175,16 +174,6 @@ function agregarPan(pan) {
     } else {
         agregarCantidad(1, panEnCarrito);
     }
-
-    // agregarCantidad(1, pan);
-    // document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
-
-    // let panEnCarrito = carrito.find(element => element.id === pan.id);
-    // if (!panEnCarrito) {
-    //     carrito.push(pan);
-    // } else {
-    //     agregarCantidad(1, panEnCarrito);
-    // }
 
     if (panDisponible(pan)) {
         document.getElementById(`${pan.id}-remove`).style.visibility = 'visible';
