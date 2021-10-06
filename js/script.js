@@ -23,29 +23,29 @@ const listadoPanes = [];
 // 3 - Si existe el usuario muestro la pagina.
 // 4 - Llamo a la funcion que renderiza la lista de panes
 function login() {
-    formLogin.onsubmit = (event) => { validarFormulario(event) };
+    formLogin.submit((event) => validarFormulario(event));
 
     usuario = JSON.parse(localStorage.getItem('usuario'));
     carrito = JSON.parse(localStorage.getItem('carrito'));
 
     if (!usuario) {
-        body.style.backgroundColor = 'var(--primary-color)';
-        loginSection.style.display = 'block';
-        navSection.style.display = 'none';
-        landingSection.style.display = 'none';
-        aboutSection.style.display = 'none';
-        productosSection.style.display = 'none';
-        contactoSection.style.display = 'none';
-        carritoSection.style.display = 'none';
+        body.css('background-color', 'var(--primary-color)');
+        loginSection.css('display', 'block');
+        navSection.css('display', 'none');
+        landingSection.css('display', 'none');
+        aboutSection.css('display', 'none');
+        productosSection.css('display', 'none');
+        contactoSection.css('display', 'none');
+        carritoSection.css('display', 'none');
     } else {
-        nombreUsuario.innerText = usuario.nombre;
-        loginSection.style.display = 'none';
-        navSection.style.display = 'block';
-        landingSection.style.display = 'block';
-        aboutSection.style.display = 'block';
-        productosSection.style.display = 'block';
-        contactoSection.style.display = 'block';
-        carritoSection.style.display = 'none';
+        nombreUsuario.text(usuario.nombre);
+        loginSection.css('display', 'none');
+        navSection.css('display', 'block');
+        landingSection.css('display', 'block');
+        aboutSection.css('display', 'block');
+        productosSection.css('display', 'block');
+        contactoSection.css('display', 'block');
+        carritoSection.css('display', 'none');
     }
 
     if (!carrito) carrito = [];
@@ -63,16 +63,16 @@ function validarFormulario(event) {
     usuario = new Usuario(form.children[1].value, form.children[3].value);
     localStorage.setItem('usuario', JSON.stringify(usuario));
 
-    body.style.backgroundColor = '#F2F2F2';
-    loginSection.style.display = 'none';
-    navSection.style.display = 'block';
-    landingSection.style.display = 'block';
-    aboutSection.style.display = 'block';
-    productosSection.style.display = 'block';
-    contactoSection.style.display = 'block';
-    carritoSection.style.display = 'none';
+    body.css('background-color', '#F2F2F2');
+    loginSection.css('display', 'none');
+    navSection.css('display', 'block');
+    landingSection.css('display', 'block');
+    aboutSection.css('display', 'block');
+    productosSection.css('display', 'block');
+    contactoSection.css('display', 'block');
+    carritoSection.css('display', 'none');
 
-    nombreUsuario.innerText = usuario.nombre;
+    nombreUsuario.text(usuario.nombre);
 }
 
 // 1 - Asigno funcion que arma el pedido a los 2 botnos de "Ir al carrito"
@@ -81,12 +81,11 @@ function validarFormulario(event) {
 // 4 - Llamo a la funcion renderSeccionEleccionPanes(), ahi manipulo el DOM para dejar al usuario agregar o restar panes al carrito
 // 5 - Llamo a getCantidadTotalPanes() para obtener el total de los panes y mostrarlo en el DOM.
 function renderizarPanes() {
-    btnCarrito.onclick = () => { armarPedido() };
-    btnCarritoNav.onclick = () => { armarPedido() };
+    btnCarrito.click(() => armarPedido());
+    btnCarritoNav.click(() => armarPedido());
     setearPanes();
-    listadoPanes.forEach(pan => {
-        let li = document.createElement('li');
-        li.innerHTML = `
+    for (const pan of listadoPanes) {
+        let li = $(`<li>
                      <img src="${pan.imagen}" alt="pan">
                      <p>${pan.tipo} - $${pan.costo}</p>
                      <a id="${pan.id}-add-btn" class="agregar-btn" >Agregar</a>
@@ -98,13 +97,15 @@ function renderizarPanes() {
                          <div id="${pan.id}-add">
                             <i class="fas fa-plus"></i>
                          </div>
-                     </div>`;
+                     </div>
+                     </li>`);
 
-        listaPanes.appendChild(li);
+        listaPanes.append(li);
         renderSeccionEleccionPanes(pan);
-    });
+    }
     getCantidadTotalPanes();
-    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarritoNav.html(`Ir al carrito ${cantidadTotalPanes > 0 ? `(${cantidadTotalPanes})` : ''}`);
+    btnCarrito.html(`Ir al carrito ${cantidadTotalPanes > 0 ? `(${cantidadTotalPanes})` : ''}`);
 }
 
 // 1 - Hago la carga inicial de panes y si ya tenia panes previos pendientes en el carrito, actualizo la cantidad del pedido y el stock restante de cada pan en listadoPanes
@@ -117,13 +118,13 @@ function setearPanes() {
     listadoPanes.push(new Pan(6, 'Pan Trenza', PRECIO_PAN_TRENZA, '250 gr', 'images/trenza.jpg', 20, 0));
 
     if (carrito.length > 0) {
-        carrito.forEach(panPendienteEnCarrito => {
+        for (const panPendienteEnCarrito of carrito) {
             let panAReemplazar = listadoPanes.find(pan => pan.id === panPendienteEnCarrito.id);
             if (panAReemplazar) {
                 panAReemplazar.cantidadPedido = panPendienteEnCarrito.cantidadPedido;
                 panAReemplazar.stock = panPendienteEnCarrito.stock;
             }
-        })
+        }
     }
 }
 
@@ -132,23 +133,21 @@ function setearPanes() {
 // Si la cantidad es 0, oculto el boton (-). Si la cantidad llego al stock maximo, oculto el boton (+)
 // Si recargo la pagina y tenia panes pendientes en el carrito, despliego el div que contiene los botones (+) y (-)
 function renderSeccionEleccionPanes(pan) {
-    let divEleccionPanes = document.getElementById(`${pan.id}-add-section`);
+    let divEleccionPanes = $(`#${pan.id}-add-section`);
 
-    document.getElementById(`${pan.id}-add`).onclick = () => { agregarPan(pan) };
-    document.getElementById(`${pan.id}-remove`).onclick = () => { removerPan(pan) };
+    $(`#${pan.id}-add`).click(() => agregarPan(pan));
+    $(`#${pan.id}-remove`).click(() => removerPan(pan));
 
-    document.getElementById(`${pan.id}-add-btn`).onclick = () => {
-        divEleccionPanes.style.display = 'flex';
-    };
+    $(`#${pan.id}-add-btn`).click(() => divEleccionPanes.css('display', 'flex'));
 
     if (panDisponible(pan) && pan.cantidadPedido === 0) {
-        document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
+        $(`#${pan.id}-remove`).css('visibility', 'hidden');
     } else if (!panDisponible(pan)) {
-        document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
-        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Cantidad maxima!';
-        divEleccionPanes.style.display = 'flex';
+        $(`${pan.id}-add`).css('visibility', 'hidden');
+        $(`${pan.id}-add-btn`).html('Cantidad maxima!');
+        divEleccionPanes.css('display', 'flex');
     } else if (pan.cantidadPedido > 0) {
-        divEleccionPanes.style.display = 'flex';
+        divEleccionPanes.css('display', 'flex');
     }
 }
 
@@ -163,10 +162,10 @@ function panDisponible(pan) {
 // Por ultimo guardo el carrito en localStorage
 function agregarPan(pan) {
     let copiaPan = new Pan(pan.id, pan.tipo, pan.costo, pan.peso, pan.imagen, pan.stock, pan.cantidadPedido);
-    
+
     agregarCantidad(1, pan);
-    document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
-    
+    $(`#${pan.id}-cantidad`).html(`${pan.cantidadPedido}`);
+
     let panEnCarrito = carrito.find(element => element.id === pan.id);
     if (!panEnCarrito) {
         agregarCantidad(1, copiaPan);
@@ -176,19 +175,19 @@ function agregarPan(pan) {
     }
 
     if (panDisponible(pan)) {
-        document.getElementById(`${pan.id}-remove`).style.visibility = 'visible';
+        $(`#${pan.id}-remove`).css('visibility', 'visible');
     } else {
-        document.getElementById(`${pan.id}-add`).style.visibility = 'hidden';
+        $(`#${pan.id}-add`).css('visibility', 'hidden');
     }
-    
+
     getCantidadTotalPanes();
 
-    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
-    btnCarritoNav.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarrito.html(`Ir al carrito (${cantidadTotalPanes})`);
+    btnCarritoNav.html(`Ir al carrito (${cantidadTotalPanes})`);
 
     localStorage.setItem('carrito', JSON.stringify(carrito));
     if (!panDisponible(pan)) {
-        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Cantidad maxima!'
+        $(`#${pan.id}-add-btn`).html('Cantidad maxima!');
     }
 }
 
@@ -200,30 +199,30 @@ function agregarPan(pan) {
 // 5 - Guardo carrito en localStorage
 function removerPan(pan) {
     removerCantidad(1, pan);
-    document.getElementById(`${pan.id}-cantidad`).innerHTML = `${pan.cantidadPedido}`;
+    $(`#${pan.id}-cantidad`).html(`${pan.cantidadPedido}`);
 
-    carrito.forEach((panActualizar, index) => {
+    for (const panActualizar of carrito) {
         if (panActualizar.id === pan.id) {
             removerCantidad(1, panActualizar);
             if (panActualizar.cantidadPedido === 0) {
-                carrito.splice(index, 1);
+                carrito.splice(carrito.indexOf(panActualizar), 1);
             }
         }
-    })
+    }
 
     if (panDisponible(pan) && pan.cantidadPedido === 0) {
-        document.getElementById(`${pan.id}-remove`).style.visibility = 'hidden';
+        $(`#${pan.id}-remove`).css('visibility', 'hidden');
     } else if (panDisponible(pan)) {
-        document.getElementById(`${pan.id}-add`).style.visibility = 'visible';
+        $(`#${pan.id}-add`).css('visibility', 'visible');
     }
 
     getCantidadTotalPanes();
-    btnCarrito.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
-    btnCarritoNav.innerHTML = `Ir al carrito (${cantidadTotalPanes})`;
+    btnCarrito.html(`Ir al carrito (${cantidadTotalPanes})`);
+    btnCarritoNav.html(`Ir al carrito (${cantidadTotalPanes})`);
 
     localStorage.setItem('carrito', JSON.stringify(carrito));
     if (panDisponible(pan)) {
-        document.getElementById(`${pan.id}-add-btn`).innerHTML = 'Agregar';
+        $(`#${pan.id}-add-btn`).html('Agregar');
     }
 }
 
@@ -254,32 +253,34 @@ function getCantidadTotalPanes() {
 function armarPedido() {
     pedido = new Pedido(carrito);
     precioTotal = pedido.calcularCostoPedido();
-    navSection.style.display = 'none';
-    landingSection.style.display = 'none';
-    aboutSection.style.display = 'none';
-    productosSection.style.display = 'none';
-    contactoSection.style.display = 'none';
-    carritoSection.style.display = 'block';
+    navSection.css('display', 'none');
+    landingSection.css('display', 'none');
+    aboutSection.css('display', 'none');
+    productosSection.css('display', 'none');
+    contactoSection.css('display', 'none');
+    carritoSection.css('display', 'block');
 
-    ulInformePedidoFinal.innerHTML = '';
+    let innerHTML = '';
 
-    carrito.forEach(pan => {
-        ulInformePedidoFinal.innerHTML += `<li>
-                                            <p>${pan.tipo} (x${pan.cantidadPedido}) ............</p>
-                                            <p>$${pan.cantidadPedido * pan.costo}</p>
-                                          </li>`;
-    });
+    for (const pan of carrito) {
+        innerHTML += `<li>
+                        <p>${pan.tipo} (x${pan.cantidadPedido}) ............</p>
+                        <p>$${pan.cantidadPedido * pan.costo}</p>
+                      </li>`;
+    }
 
-    ulInformePedidoFinal.innerHTML += `<li>
+    innerHTML += `<li>
              <p>TOTAL: $${precioTotal}</p>
          </li>`;
 
-    divResumenPedido.appendChild(ulInformePedidoFinal);
+    const ulInformePedidoFinal = $(`<ul>${innerHTML}</ul>`);
+    divResumenPedido.empty();
+    divResumenPedido.append(ulInformePedidoFinal);
 
     if (carrito.length > 0) {
-        btnConfirmar.style.display = 'inline-block';
+        btnConfirmar.css('display', 'inline-block');
     } else {
-        btnConfirmar.style.display = 'none';
+        btnConfirmar.css('display', 'none');
     }
 }
 
@@ -287,10 +288,10 @@ function armarPedido() {
 // 2 - Muestro un spinner durante 5 segundos
 // 3 - Elimino la data del localStorage
 function confirmarCompra() {
-    btnConfirmar.innerHTML = '<span><i style="color: var(--primary-color)" class="fas fa-spinner fa-spin"></i></span>';
-    btnVolver.parentNode.removeChild(btnVolver);
+    btnConfirmar.html('<span><i style="color: var(--primary-color)" class="fas fa-spinner fa-spin"></i></span>');
+    btnVolver.remove();
     setTimeout(() => {
-        btnConfirmar.parentNode.removeChild(btnConfirmar);
+        btnConfirmar.remove();
         let confirmacion = generarMensajeCompra();
         mensajeConfirmacion.append(confirmacion);
         localStorage.clear();
@@ -300,25 +301,23 @@ function confirmarCompra() {
 
 // 1 - Muestro en el DOM un mensaje de despedida
 function generarMensajeCompra() {
-    let div = document.createElement('div');
-    div.innerHTML = `<p>Muchas gracias por tu compra ${usuario.nombre}!</p>`;
+    let div = $(`<div><p>Muchas gracias por tu compra ${usuario.nombre}!</p></div>`);
     return div;
 }
 
 // 1 - El boton "Volver" llama a esta funcion, la cual redirecciona el usuario al inicio de la pagina
 function goToHomePage() {
-    document.getElementById('nav').style.display = 'block';
-    landingSection.style.display = 'block';
-    aboutSection.style.display = 'block';
-    productosSection.style.display = 'block';
-    contactoSection.style.display = 'block';
-    carritoSection.style.display = 'none';
+    navSection.css('display', 'block');
+    landingSection.css('display', 'block');
+    aboutSection.css('display', 'block');
+    productosSection.css('display', 'block');
+    contactoSection.css('display', 'block');
+    carritoSection.css('display', 'none');
 }
 
 // 1 - Luego de haber confimado la compra y haber vaciado el localStorage, se recarga la pagina para volver a iniciar el flujo de la app
 function redireccionarAInicio() {
-    let div = document.createElement('div');
-    div.innerHTML = '<p>Seras redirigidx al inicio en unos segundos...</p>';
+    let div = $('<div><p>Seras redirigidx al inicio en unos segundos...</p></div>');
     mensajeConfirmacion.append(div);
     setTimeout(() => {
         window.location.reload();
