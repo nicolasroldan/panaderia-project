@@ -14,7 +14,7 @@ const PRECIO_FOCACCIA = 230;
 const PRECIO_PAN_HAMBURGUESA = 80;
 const PRECIO_PAN_TRENZA = 100;
 
-const listadoPanes = [];
+let listadoPanes = [];
 
 // Funciones
 
@@ -30,22 +30,20 @@ function login() {
 
     if (!usuario) {
         body.css('background-color', 'var(--primary-color)');
-        loginSection.css('display', 'block');
-        navSection.css('display', 'none');
-        landingSection.css('display', 'none');
-        aboutSection.css('display', 'none');
-        productosSection.css('display', 'none');
-        contactoSection.css('display', 'none');
-        carritoSection.css('display', 'none');
+        navSection.hide();
+        landingSection.hide();
+        aboutSection.hide();
+        productosSection.hide();
+        contactoSection.hide();
+        carritoSection.hide();
     } else {
         nombreUsuario.text(usuario.nombre);
-        loginSection.css('display', 'none');
-        navSection.css('display', 'block');
-        landingSection.css('display', 'block');
-        aboutSection.css('display', 'block');
-        productosSection.css('display', 'block');
-        contactoSection.css('display', 'block');
-        carritoSection.css('display', 'none');
+        loginSection.hide();
+        navSection.show();
+        landingSection.show();
+        aboutSection.show();
+        productosSection.show();
+        contactoSection.show();
     }
 
     if (!carrito) carrito = [];
@@ -64,13 +62,13 @@ function validarFormulario(event) {
     localStorage.setItem('usuario', JSON.stringify(usuario));
 
     body.css('background-color', '#F2F2F2');
-    loginSection.css('display', 'none');
-    navSection.css('display', 'block');
-    landingSection.css('display', 'block');
-    aboutSection.css('display', 'block');
-    productosSection.css('display', 'block');
-    contactoSection.css('display', 'block');
-    carritoSection.css('display', 'none');
+    loginSection.hide();
+    navSection.show();
+    landingSection.show();
+    aboutSection.show();
+    productosSection.show();
+    contactoSection.show();
+    carritoSection.hide();
 
     nombreUsuario.text(usuario.nombre);
 }
@@ -138,7 +136,7 @@ function renderSeccionEleccionPanes(pan) {
     $(`#${pan.id}-add`).click(() => agregarPan(pan));
     $(`#${pan.id}-remove`).click(() => removerPan(pan));
 
-    $(`#${pan.id}-add-btn`).click(() => divEleccionPanes.css('display', 'flex'));
+    $(`#${pan.id}-add-btn`).click(() => divEleccionPanes.fadeIn(1000).css('display', 'flex'));
 
     if (panDisponible(pan) && pan.cantidadPedido === 0) {
         $(`#${pan.id}-remove`).css('visibility', 'hidden');
@@ -253,12 +251,12 @@ function getCantidadTotalPanes() {
 function armarPedido() {
     pedido = new Pedido(carrito);
     precioTotal = pedido.calcularCostoPedido();
-    navSection.css('display', 'none');
-    landingSection.css('display', 'none');
-    aboutSection.css('display', 'none');
-    productosSection.css('display', 'none');
-    contactoSection.css('display', 'none');
-    carritoSection.css('display', 'block');
+    navSection.hide();
+    landingSection.hide();
+    aboutSection.hide();
+    productosSection.hide();
+    contactoSection.hide();
+    carritoSection.show();
 
     let innerHTML = '';
 
@@ -278,9 +276,9 @@ function armarPedido() {
     divResumenPedido.append(ulInformePedidoFinal);
 
     if (carrito.length > 0) {
-        btnConfirmar.css('display', 'inline-block');
+        btnConfirmar.show();
     } else {
-        btnConfirmar.css('display', 'none');
+        btnConfirmar.hide();
     }
 }
 
@@ -289,7 +287,7 @@ function armarPedido() {
 // 3 - Elimino la data del localStorage
 function confirmarCompra() {
     btnConfirmar.html('<span><i style="color: var(--primary-color)" class="fas fa-spinner fa-spin"></i></span>');
-    btnVolver.remove();
+    btnVolver.fadeOut().slideUp();
     setTimeout(() => {
         btnConfirmar.remove();
         let confirmacion = generarMensajeCompra();
@@ -307,12 +305,12 @@ function generarMensajeCompra() {
 
 // 1 - El boton "Volver" llama a esta funcion, la cual redirecciona el usuario al inicio de la pagina
 function goToHomePage() {
-    navSection.css('display', 'block');
-    landingSection.css('display', 'block');
-    aboutSection.css('display', 'block');
-    productosSection.css('display', 'block');
-    contactoSection.css('display', 'block');
-    carritoSection.css('display', 'none');
+    navSection.show();
+    landingSection.show();
+    aboutSection.show();
+    productosSection.show();
+    contactoSection.show();
+    carritoSection.hide();
 }
 
 // 1 - Luego de haber confimado la compra y haber vaciado el localStorage, se recarga la pagina para volver a iniciar el flujo de la app
