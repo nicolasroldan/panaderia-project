@@ -6,14 +6,6 @@ let usuario;
 let carrito;
 let pedido;
 let precioTotal;
-
-const PRECIO_PAN_DE_CAMPO = 200;
-const PRECIO_PAN_CENTENO = 250;
-const PRECIO_PAN_INTEGRAL = 230;
-const PRECIO_FOCACCIA = 230;
-const PRECIO_PAN_HAMBURGUESA = 80;
-const PRECIO_PAN_TRENZA = 100;
-
 let listadoPanes = [];
 
 // Funciones
@@ -44,11 +36,13 @@ function login() {
         aboutSection.show();
         productosSection.show();
         contactoSection.show();
+        nombreForm.val(usuario.nombre);
     }
 
     if (!carrito) carrito = [];
 
     renderizarPanes();
+    formContact.submit((event) => enviarFormulario(event));
 }
 
 // 1 - En el submit del form del login genero el nuevo usuario y lo guardo en localStorage
@@ -69,7 +63,7 @@ function validarFormulario(event) {
     productosSection.show();
     contactoSection.show();
     carritoSection.hide();
-
+    nombreForm.val(usuario.nombre);
     nombreUsuario.text(usuario.nombre);
 }
 
@@ -78,14 +72,14 @@ function validarFormulario(event) {
 // 3 - recorro el listado de panes y los muestro en el DOM
 // 4 - Llamo a la funcion renderSeccionEleccionPanes(), ahi manipulo el DOM para dejar al usuario agregar o restar panes al carrito
 // 5 - Llamo a getCantidadTotalPanes() para obtener el total de los panes y mostrarlo en el DOM.
-function renderizarPanes() {
+async function renderizarPanes() {
     btnCarrito.click(() => armarPedido());
     btnCarritoNav.click(() => armarPedido());
-    setearPanes();
+    await setearPanes();
     for (const pan of listadoPanes) {
         let li = $(`<li>
                      <img src="${pan.imagen}" alt="pan">
-                     <p>${pan.tipo} - $${pan.costo}</p>
+                     <p>${pan.tipo} - $${pan.costo} (${pan.peso})</p>
                      <a id="${pan.id}-add-btn" class="agregar-btn" >Agregar</a>
                      <div id="${pan.id}-add-section" class="agregar-item">
                          <div id="${pan.id}-remove">
@@ -107,13 +101,12 @@ function renderizarPanes() {
 }
 
 // 1 - Hago la carga inicial de panes y si ya tenia panes previos pendientes en el carrito, actualizo la cantidad del pedido y el stock restante de cada pan en listadoPanes
-function setearPanes() {
-    listadoPanes.push(new Pan(1, 'Pan de Campo', PRECIO_PAN_DE_CAMPO, '850gr', 'images/pan-campo.jpg', 20, 0));
-    listadoPanes.push(new Pan(2, 'Pan de Centeno', PRECIO_PAN_CENTENO, '1000 gr', 'images/pan-centeno.webp', 20, 0));
-    listadoPanes.push(new Pan(3, 'Pan de Integral', PRECIO_PAN_INTEGRAL, '1000 gr', 'images/pan1.jfif', 20, 0));
-    listadoPanes.push(new Pan(4, 'Focaccia', PRECIO_FOCACCIA, '800gr', 'images/focaccia.jpg', 20, 0));
-    listadoPanes.push(new Pan(5, 'Pan de Hamburguesa', PRECIO_PAN_HAMBURGUESA, '150 gr', 'images/pan-hamburguesa.jpg', 20, 0));
-    listadoPanes.push(new Pan(6, 'Pan Trenza', PRECIO_PAN_TRENZA, '250 gr', 'images/trenza.jpg', 20, 0));
+async function setearPanes() {
+    await $.getJSON('./datos/listaPanes.json', (respuesta) => {
+        for (const pan of respuesta) {
+            listadoPanes.push(new Pan(pan.id, pan.tipo, pan.costo, pan.peso, pan.imagen, pan.stock, pan.cantidadPedido))
+        }
+    }).catch(error => console.log(error));
 
     if (carrito.length > 0) {
         for (const panPendienteEnCarrito of carrito) {
@@ -141,8 +134,8 @@ function renderSeccionEleccionPanes(pan) {
     if (panDisponible(pan) && pan.cantidadPedido === 0) {
         $(`#${pan.id}-remove`).css('visibility', 'hidden');
     } else if (!panDisponible(pan)) {
-        $(`${pan.id}-add`).css('visibility', 'hidden');
-        $(`${pan.id}-add-btn`).html('Cantidad maxima!');
+        $(`#${pan.id}-add`).css('visibility', 'hidden');
+        $(`#${pan.id}-add-btn`).html('Cantidad maxima!');
         divEleccionPanes.css('display', 'flex');
     } else if (pan.cantidadPedido > 0) {
         divEleccionPanes.css('display', 'flex');
@@ -320,6 +313,23 @@ function redireccionarAInicio() {
     setTimeout(() => {
         window.location.reload();
     }, 5000)
+}
+
+// Envio formulario de contacto y genero respuesta desde un archivo JSON estatico
+function enviarFormulario(event) {
+    event.preventDefault();
+    let form = event.target;
+    const body = {
+        nombre: form.children[1].value,
+        email: form.children[3].value,
+        mensaje: form.children[5].value,
+    }
+
+    $.getJSON('./datos/datos.json', (respuesta) => {
+        btnForm.prop('disabled', true);
+        btnForm.css('opacity', '0.3');
+        formContainer.append(`<p>${respuesta.mensaje}</p>`);
+    }).catch(error => console.log(error));
 }
 
 // Main

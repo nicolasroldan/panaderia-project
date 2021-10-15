@@ -18,6 +18,10 @@ const divResumenPedido = $('#resumen-pedido');
 const btnConfirmar = $('#btn-confirmar');
 const btnVolver = $('#btn-volver');
 const mensajeConfirmacion = $('#confirmacion');
+const nombreForm = $("#name");
+const formContact = $("#contact-form");
+const btnForm = $("#btn-form");
+const formContainer = $("#form-container");
 
 btnConfirmar.click(() => confirmarCompra());
 btnVolver.click(() => goToHomePage());

@@ -1,0 +1,56 @@
+[
+    {
+        "id": 1,
+        "tipo": "Pan de Campo",
+        "costo": 200,
+        "peso": "850gr",
+        "imagen": "./images/pan-campo.jpg",
+        "stock": 20,
+        "cantidadPedido": 0
+    },
+    {
+        "id": 2,
+        "tipo": "Pan de Centeno",
+        "costo": 250,
+        "peso": "1000 gr",
+        "imagen": "./images/pan-centeno.webp",
+        "stock": 20,
+        "cantidadPedido": 0
+    },
+    {
+        "id": 3,
+        "tipo": "Pan de Integral",
+        "costo": 230,
+        "peso": "1000 gr",
+        "imagen": "./images/pan1.jfif",
+        "stock": 20,
+        "cantidadPedido": 0
+    },
+    {
+        "id": 4,
+        "tipo": "Focaccia",
+        "costo": 230,
+        "peso": "800gr",
+        "imagen": "./images/focaccia.jpg",
+        "stock": 20,
+        "cantidadPedido": 0
+    },
+    {
+        "id": 5,
+        "tipo": "Pan de Hamburguesa",
+        "costo": 80,
+        "peso": "150 gr",
+        "imagen": "./images/pan-hamburguesa.jpg",
+        "stock": 20,
+        "cantidadPedido": 0
+    },
+    {
+        "id": 6,
+        "tipo": "Pan Trenza",
+        "costo": 100,
+        "peso": "250 gr",
+        "imagen": "./images/trenza.jpg",
+        "stock": 20,
+        "cantidadPedido": 0
+    }
+]
